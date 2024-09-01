@@ -1,7 +1,12 @@
 <script setup>
+import Grid from './components/Grid.vue';
 </script>
 
 <template>
- <h1 class="text-3xl font-bold text-center">Hello World</h1>
+  <section>
+    <h1 class="text-3xl font-bold text-center mb-8">Tic Tac Toe</h1>
+    <div>
+        <Grid></Grid>
+    </div>
+  </section>
 </template>
-
