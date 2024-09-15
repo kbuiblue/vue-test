@@ -1,21 +1,32 @@
 <script setup>
 
-defineProps({
-    row: Array,
-    id: String,
+import { useGameStateStore } from '../stores/gameState';
+
+const props = defineProps({
+    rowArray: Array,
+    rowId: String,
 });
 
-defineEmits(["updateGameState"])
+const emit = defineEmits(["updateGridState"]);
+
+const getSquareId = (index) => `${props.rowId}-${index}`;
+
+const handleClick = (index) => {
+    emit('updateGridState', props.rowId, index);
+};
+
+const gameState = useGameStateStore()
 </script>
 
 <template>
     <div
-        v-for="(value, index) in row"
-        :key="`${id}-${index}`"
-        :id="`${id}-${index}`"
-        @click="$emit('updateGameState')"
+        v-for="(value, index) in rowArray"
+        :key="getSquareId(index)"
+        @click="handleClick(index)"
         class="border border-black"
     >
-        <p v-if="value === null">It is null</p>
-    </div>
+        <p v-if="value === 'X'">X</p>
+        <p v-else-if="value === 'O'">0</p>
+        <p v-else></p>
+</div>
 </template>
