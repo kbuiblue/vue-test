@@ -1,7 +1,6 @@
 <script setup>
 import GridSquare from "./GridSquare.vue";
 import { reactive } from "vue";
-import { useGameStateStore } from "../stores/gameState";
 
 const gridState = reactive({
     row1: [null, null, null],
@@ -9,11 +8,17 @@ const gridState = reactive({
     row3: [null, null, null],
 });
 
-const gameState = useGameStateStore();
+const gameState = reactive({
+    gameEnded: false,
+    turnCount: 0,
+    winner: null,
+    players: ["X", "O"],
+    playerTurn: null,
+});
 
 // set initial gamestate
 if (!gameState.gameEnded && gameState.turnCount === 0) {
-    gameState.setFirstPlayer()
+    gameState.playerTurn = gameState.players[0];
 }
 
 const updateGameState = () => {
