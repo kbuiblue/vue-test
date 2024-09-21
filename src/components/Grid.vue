@@ -1,45 +1,36 @@
 <script setup>
 import GridSquare from "./GridSquare.vue";
-import { reactive } from "vue";
+import { useGameStateStore } from "../stores/gameState";
+import { useGridStateStore } from "../stores/gridState";
 
-const gridState = reactive({
-    row1: [null, null, null],
-    row2: [null, null, null],
-    row3: [null, null, null],
-});
+// const gridState = reactive({
+//     row1: [null, null, null],
+//     row2: [null, null, null],
+//     row3: [null, null, null],
+// });
 
-const gameState = reactive({
-    gameEnded: false,
-    turnCount: 0,
-    winner: null,
-    players: ["X", "O"],
-    playerTurn: null,
-});
+const gameStateStore = useGameStateStore();
+const gameState = gameStateStore.gameState;
+
+const gridStateStore = useGridStateStore();
+const gridState = gridStateStore.gridState;
 
 // set initial gamestate
 if (!gameState.gameEnded && gameState.turnCount === 0) {
-    gameState.playerTurn = gameState.players[0];
+    gameStateStore.setFirstPlayer();
 }
-
-const updateGameState = () => {
-    gameState.playerTurn = gameState.playerTurn === "X" ? "O" : "X";
-
-    // if gameState.turnCount >= 3 then check if there's a winner
-    console.log(gameState);
-};
 
 const updateGridState = (rowId, index) => {
     if (!gridState[rowId][index]) {
-        gridState[rowId][index] = gameState.playerTurn;
-        updateGameState();
+        gridStateStore.updateGridState(rowId, index, gameState.playerTurn);
+        gameStateStore.updatePlayerTurn();
+        updateTurnCount(rowId, index);
     }
-    updateTurnCount(rowId, index)
-
     console.log(gridState);
 };
 
 const updateTurnCount = (rowId, index) => {
-    gameState.turnCount++;
+    gameStateStore.incrementTurnCount();
 
     if (gameState.turnCount >= 3) {
         findWinnerRow(rowId, gridState[rowId][index]);
@@ -52,7 +43,6 @@ const findWinnerRow = (rowId, currentPlayer) => {
     );
 
     if (isWinningRow) {
-        console.log(`The winning player is ${currentPlayer}`);
         gameState.winner = currentPlayer;
         gameState.gameEnded = true;
     }

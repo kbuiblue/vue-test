@@ -1,7 +1,5 @@
 <script setup>
 
-import { useGameStateStore } from '../stores/gameState';
-
 const props = defineProps({
     rowArray: Array,
     rowId: String,
@@ -14,8 +12,6 @@ const getSquareId = (index) => `${props.rowId}-${index}`;
 const handleClick = (index) => {
     emit('updateGridState', props.rowId, index);
 };
-
-const gameState = useGameStateStore()
 </script>
 
 <template>
