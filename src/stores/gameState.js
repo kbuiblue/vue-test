@@ -13,24 +13,30 @@ export const useGameStateStore = defineStore("gameState", () => {
     const updatePlayerTurn = () => {
         gameState.value.playerTurn =
             gameState.value.playerTurn === "X" ? "O" : "X";
-    }
+    };
     const setFirstPlayer = () => {
         gameState.value.playerTurn = gameState.value.players[0];
-    }
+    };
 
     const incrementTurnCount = () => {
         gameState.value.turnCount++;
-    }
+    };
 
-    const $reset = () => {
-        console.log("clicked")
-        if (gameState.value) {
-            gameState.value.gameEnded = false;
-            gameState.value.turnCount = 0;
-            gameState.value.winner = null;
-            gameState.value.playerTurn = null;
-        }
-    }
+    const resetGame = () => {
+        gameState.value = {
+            gameEnded: false,
+            turnCount: 0,
+            winner: null,
+            players: ["X", "O"],
+            playerTurn: null,
+        };
+    };
 
-    return { gameState, updatePlayerTurn, setFirstPlayer, incrementTurnCount, $reset };
+    return {
+        gameState,
+        updatePlayerTurn,
+        setFirstPlayer,
+        incrementTurnCount,
+        resetGame,
+    };
 });

@@ -1,61 +1,105 @@
 <script setup>
 import GridSquare from "./GridSquare.vue";
+import { storeToRefs } from "pinia";
 import { useGameStateStore } from "../stores/gameState";
 import { useGridStateStore } from "../stores/gridState";
 
-// const gridState = reactive({
-//     row1: [null, null, null],
-//     row2: [null, null, null],
-//     row3: [null, null, null],
-// });
-
 const gameStateStore = useGameStateStore();
-const gameState = gameStateStore.gameState;
+const { gameState } = storeToRefs(gameStateStore);
 
 const gridStateStore = useGridStateStore();
-const gridState = gridStateStore.gridState;
+const { gridState } = storeToRefs(gridStateStore);
 
 // set initial gamestate
-if (!gameState.gameEnded && gameState.turnCount === 0) {
+if (!gameState.value.gameEnded && gameState.value.turnCount === 0) {
     gameStateStore.setFirstPlayer();
 }
 
-const updateGridState = (rowId, index) => {
-    if (!gridState[rowId][index]) {
-        gridStateStore.updateGridState(rowId, index, gameState.playerTurn);
+const updateGrid = (row, column) => {
+    if (!gridState.value[row][column]) {
+        gridStateStore.updateGridState(row, column, gameState.value.playerTurn);
         gameStateStore.updatePlayerTurn();
-        updateTurnCount(rowId, index);
+        gameStateStore.incrementTurnCount();
+
+        if (gameState.value.turnCount >= 9) {
+            endGame();
+            return;
+        }
+
+        if (gameState.value.turnCount >= 3) {
+            const winner = findWinner();
+            if (winner) {
+                endGame(winner);
+            }
+        }
     }
-    console.log(gridState);
 };
 
-const updateTurnCount = (rowId, index) => {
-    gameStateStore.incrementTurnCount();
-
-    if (gameState.turnCount >= 3) {
-        findWinnerRow(rowId, gridState[rowId][index]);
-    }
+const endGame = (winner = null) => {
+    gameState.value.winner = winner;
+    gameState.value.gameEnded = true;
 };
 
-const findWinnerRow = (rowId, currentPlayer) => {
-    const isWinningRow = gridState[rowId].every(
-        (cell) => cell === currentPlayer
-    );
-
-    if (isWinningRow) {
-        gameState.winner = currentPlayer;
-        gameState.gameEnded = true;
+const findWinner = () => {
+    for (let i = 0; i < gridState.value.length; i++) {
+        if (
+            checkLine(
+                gridState.value[i][0],
+                gridState.value[i][1],
+                gridState.value[i][2]
+            )
+        ) {
+            return gridState.value[i][0];
+        }
     }
+
+    for (let i = 0; i < gridState.value[0].length; i++) {
+        if (
+            checkLine(
+                gridState.value[0][i],
+                gridState.value[1][i],
+                gridState.value[2][i]
+            )
+        ) {
+            return gridState.value[0][i];
+        }
+    }
+
+    if (
+        checkLine(
+            gridState.value[0][0],
+            gridState.value[1][1],
+            gridState.value[2][2]
+        )
+    ) {
+        return gridState.value[0][0];
+    } else if (
+        checkLine(
+            gridState.value[0][2],
+            gridState.value[1][1],
+            gridState.value[2][0]
+        )
+    ) {
+        return gridState.value[0][2];
+    }
+
+    return null;
+};
+
+const checkLine = (square1, square2, square3) => {
+    return square1 !== null && square1 === square2 && square2 === square3;
 };
 </script>
 
 <template>
-    <div class="grid grid-cols-3 grid-rows-3 w-2/3 h-[80vh] m-auto">
+    <div
+        class="grid grid-cols-3 grid-rows-3 w-2/3 max-w-screen-md h-[80vh] m-auto"
+    >
         <GridSquare
-            v-for="(rowArray, rowId) in gridState"
-            @update-grid-state="updateGridState"
-            :row-array="rowArray"
-            :row-id="rowId"
+            v-for="(row, rowId) in gridState"
+            @update-grid="updateGrid"
+            :row="row"
+            :rowId="rowId"
         ></GridSquare>
     </div>
 </template>

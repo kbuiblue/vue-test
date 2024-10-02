@@ -1,22 +1,22 @@
 <script setup>
 
 const props = defineProps({
-    rowArray: Array,
-    rowId: String,
+    row: Array,
+    rowId: Number
 });
 
-const emit = defineEmits(["updateGridState"]);
+const emit = defineEmits(["updateGrid"]);
 
-const getSquareId = (index) => `${props.rowId}-${index}`;
+const getSquareId = (index) => `row${props.rowId}-${index}`;
 
 const handleClick = (index) => {
-    emit('updateGridState', props.rowId, index);
+    emit('updateGrid', props.rowId, index);
 };
 </script>
 
 <template>
     <div
-        v-for="(value, index) in rowArray"
+        v-for="(value, index) in row"
         :key="getSquareId(index)"
         @click="handleClick(index)"
         class="border border-black"
